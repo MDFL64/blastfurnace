@@ -19,6 +19,13 @@ namespace program {
 		static System.Collections.ArrayList inventory;
 
 		static void Main(string[] args) {
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.WriteLine("Blastfurnace Bulk Crafting Utility V1.0");
+			Console.WriteLine("Written by Adam Coggeshall.");
+			Console.WriteLine("Thanks to Steamkit2.");
+			Console.WriteLine("This software is in no way supported by Valve.");
+			Console.WriteLine();
+			
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			Console.WriteLine("This program uses the Steam API, pretends to be TF2, and interacts with the");
 			Console.WriteLine("TF2 Game Coordinator in ways not intended by Valve. While the likelihood");
