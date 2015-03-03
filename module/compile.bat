@@ -1,3 +1,3 @@
 @echo off
-g++ steamlink.cpp -Isteamworks/public -shared -o steamlink.dll -Lsteamworks/redistributable_bin -lsteam_api
+g++ gclink.cpp -Isteamworks/public -shared -o ../program/gclink.dll -Lsteamworks/redistributable_bin -lsteam_api
 pause

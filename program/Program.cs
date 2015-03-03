@@ -19,6 +19,23 @@ namespace program {
 		static System.Collections.ArrayList inventory;
 
 		static void Main(string[] args) {
+			Console.ForegroundColor = ConsoleColor.Yellow;
+			Console.WriteLine("This program uses the Steam API, pretends to be TF2, and interacts with the");
+			Console.WriteLine("TF2 Game Coordinator in ways not intended by Valve. While the likelihood");
+			Console.WriteLine("of users being banned or having their items deleted is low, the creator");
+			Console.WriteLine("of this software takes no responsibility for bans or lost items.");
+			Console.WriteLine();
+			Console.WriteLine("This program is NOT intended to give users any significant advantage");
+			Console.WriteLine("over others, and will not help players to achieve low craft numbers.");
+			Console.WriteLine();
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("I WILL TAKE NO RESPONSIBILITY FOR ANYTHING BAD THAT HAPPENS TO YOU.");
+			Console.WriteLine("ARE YOU SURE YOU WANT TO CONTINUE?");
+
+			confirm();
+
+			Console.WriteLine();
+			
 			//Create the schema folder.
 			if (!Directory.Exists("schema"))
 				Directory.CreateDirectory("schema");
@@ -26,47 +43,45 @@ namespace program {
 			//Connect to Steam GC.
 			gc = new SteamGC();
 			if (!gc.isConnected()) {
-				Console.WriteLine("Failed to connect to Steam GC.");
-				Console.ReadKey();
-				return;
+				err("Failed to connect to Steam GC.");
 			}
-			Console.WriteLine("Connected to Steam GC.");
+			log("Connected to Steam GC.");
 
 			while (true) {
 				PacketClientGCMsgProtobuf msg = gc.readMsg();
 				if (msg != null) {
 					if (msg.MsgType == MSG_SCHEMA) {
 						var body = new ClientGCMsgProtobuf<MsgTF.CMsgUpdateItemSchema>(msg).Body;
-						Console.WriteLine("Item Schema #" + body.item_schema_version + " required...");
+						log("Item Schema #" + body.item_schema_version + " required...");
 
 						//Get the schema
 						string schema_path = "schema/" + body.item_schema_version + ".txt";
 						string schema_text;
 						if (File.Exists(schema_path)) {
-							Console.WriteLine("We have the correct schema.");
+							log("We have the correct schema.");
 							schema_text = File.ReadAllText(schema_path);
-							Console.WriteLine("Schema loaded.");
+							log("Schema loaded.");
 						}
 						else {
-							Console.WriteLine("Downloading schema...");
+							log("Downloading schema...");
 							schema_text = new StreamReader(WebRequest.Create(body.items_game_url).GetResponse().GetResponseStream()).ReadToEnd();
 							File.WriteAllText(schema_path, schema_text);
-							Console.WriteLine("Schema saved.");
+							log("Schema saved.");
 						}
 
 						schema = new ItemSchema(schema_text);
-						Console.WriteLine("Schema parsed.");
+						log("Schema parsed.");
 
 						//Send inventory request.
 						var reqInv = new ClientGCMsgProtobuf<MsgTF.CMsgRequestInventoryRefresh>(MSG_REQ_INVENTORY);
 						if (!gc.sendMsg(reqInv)) {
-							Console.WriteLine("Failed to send inventory request!");
+							err("Failed to send inventory request!");
 						}
-						Console.WriteLine("Requesting inventory...");
+						log("Requesting inventory...");
 					}
 					else if (msg.MsgType == MSG_CACHE_SUB) {
 						var body = new ClientGCMsgProtobuf<MsgSys.CMsgSOCacheSubscribed>(msg).Body;
-						Console.WriteLine("Inventory received.");
+						log("Inventory received.");
 						var obj = body.objects.Find(o => o.type_id == 1);
 
 						inventory = new System.Collections.ArrayList();
@@ -76,12 +91,10 @@ namespace program {
 								inventory.Add(item);
 							}
 						}
-						Console.WriteLine(inventory.Count);
 
-						Console.WriteLine("Inventory decoded.");
-						Console.WriteLine("Ready, Brother!");
+						log("Inventory decoded.");
 
-						simCraft();
+						doCraft();
 						break;
 					}
 					/*else {
@@ -91,16 +104,48 @@ namespace program {
 			}
 		}
 
-		static void simCraft() {
+		static void log(string msg) {
+			Console.ForegroundColor = ConsoleColor.Cyan;
+			Console.WriteLine("[>] "+msg);
+			Console.ForegroundColor = ConsoleColor.Gray;
+		}
+
+		static void err(string msg) {
+			Console.ForegroundColor = ConsoleColor.DarkRed;
+			Console.WriteLine("[!] " + msg);
+			Console.ForegroundColor = ConsoleColor.Gray;
+			Console.ReadKey();
+			Environment.Exit(1);
+		}
+
+		static void confirm() {
+			Console.ForegroundColor = ConsoleColor.Green;
+
+			string response;
+			while (true) {
+				Console.WriteLine();
+				Console.WriteLine("Type \"confirm\" to continue.");
+				Console.WriteLine("Type \"exit\" or just quit the program to exit.");
+				Console.WriteLine();
+				response = Console.ReadLine();
+				if (response == "confirm" || response == "exit")
+					break;
+			}
+
+			if (response != "confirm")
+				Environment.Exit(0);
+
+			Console.ForegroundColor = ConsoleColor.Gray;
+		}
+
+		static void doCraft() {
+			Console.ForegroundColor = ConsoleColor.Cyan;
 			Console.WriteLine();
-			Console.WriteLine("Excluding special items:");
+			log("Excluding special items, none of the following items will be crafted:");
 			foreach (MsgTF.CSOEconItem item in inventory) {
 				SchemaItem si = schema.get((int)item.def_index);
 				if (si != null) {
 					bool failed = false;
-
-					//if (item.id == 390075606)
-					//	Console.WriteLine("->UBERSAW");
 
 					if (item.quality != 6) {
 						if (!failed) {
@@ -139,10 +184,10 @@ namespace program {
 
 						Console.ForegroundColor = ConsoleColor.Red;
 						if (item.origin == 1) {
-							Console.WriteLine("\tWARNING: ITEM NOT TRADABLE.");
+							Console.WriteLine("\tNOTE: ITEM NOT TRADABLE.");
 						}
 						else if (item.origin == 2) {
-							Console.WriteLine("\tWARNING: ITEM NOT CRAFTABLE.");
+							Console.WriteLine("\tNOTE: ITEM NOT CRAFTABLE.");
 						}
 						Console.ForegroundColor = ConsoleColor.Gray;
 					}
@@ -153,7 +198,7 @@ namespace program {
 			}
 
 			Console.WriteLine();
-			Console.WriteLine("Listing craftables:");
+			log("Listing craftables, the following items will be crafted:");
 			Console.WriteLine();
 			var craftables = schema.getAllCraftables();
 			for (int i = 0; i < 10; i++) {
@@ -162,12 +207,14 @@ namespace program {
 				foreach (SchemaItem item in itemset) {
 					Console.WriteLine("\t" + item.getCraftableCount() + " X " + item.name);
 				}
+				if (itemset.Count==0)
+					Console.WriteLine("\tNone");
 			}
 
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			Console.WriteLine();
 			Console.WriteLine("Ready to craft. Please confirm that you want to craft these items. Make sure");
-			Console.WriteLine("in the exclude section, your valuable items are or that their types are not");
+			Console.WriteLine("your valuable items are in the exclude section, or that their types are not");
 			Console.WriteLine("listed in the crafting section. I have tried to filter out your valuable items,");
 			Console.WriteLine("but I will take no responsibility for lost items.");
 			Console.WriteLine();
@@ -178,24 +225,8 @@ namespace program {
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("I WILL TAKE NO RESPONSIBILITY FOR LOST ITEMS.");
 			Console.WriteLine("ARE YOU SURE YOU WANT TO CRAFT THE ABOVE ITEMS?");
-			Console.ForegroundColor = ConsoleColor.Green;
 
-			string response;
-			while (true) {
-				Console.WriteLine();
-				Console.WriteLine("Type \"confirm\" to continue and craft the items.");
-				Console.WriteLine("Type \"exit\" or just quit the program to exit.");
-				Console.WriteLine();
-				response = Console.ReadLine();
-				if (response == "confirm" || response == "exit")
-					break;
-			}
-
-			if (response == "exit")
-				return;
-
-			if (response != "confirm")
-				return;
+			confirm();
 
 			Console.ForegroundColor = ConsoleColor.Magenta;
 			Console.WriteLine();
@@ -246,6 +277,9 @@ namespace program {
 					Thread.Sleep(1000);
 				}
 			}
+
+			Console.WriteLine("Done.");
+			Console.ReadKey();
 		}
 
 		static string getClassName(int c) {
