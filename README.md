@@ -4,7 +4,7 @@
 This program simplifies the process of crafting weapons together in Team Fortress 2. It skips items with special qualities and
 always leaves at least one of each type of weapon.
 
-*Note:* This program is not intended to give users unfair advantages by helping them get low craft numbers. It only crafts
+**Note:** This program is **not** intended to give users an unfair advantage by helping them get low craft numbers. It only crafts
 weapons into scrap. No assistance will be provided to users hoping to use the code for this purpose.
 
 ##Building
