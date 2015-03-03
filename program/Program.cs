@@ -20,7 +20,7 @@ namespace program {
 
 		static void Main(string[] args) {
 			Console.ForegroundColor = ConsoleColor.White;
-			Console.WriteLine("Blastfurnace Bulk Crafting Utility V1.0");
+			Console.WriteLine("Blastfurnace Bulk Crafting Utility V1.0.1");
 			Console.WriteLine("Written by Adam Coggeshall.");
 			Console.WriteLine("Thanks to Steamkit2.");
 			Console.WriteLine("This software is in no way supported by Valve.");
