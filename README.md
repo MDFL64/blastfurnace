@@ -7,6 +7,14 @@ always leaves at least one of each type of weapon.
 *Note:* This program is not intended to give users unfair advantages by helping them get low craft numbers. It only crafts
 weapons into scrap. No assistance will be provided to users hoping to use the code for this purpose.
 
+##Building
+
+Only tested on Windows.
+
+Run module/compile.bat to build the C++ module. Only tested with MinGW on Windows.
+
+The rest of the project is a VS2013 C# project and can be compiled with Visual Studio.
+
 ##License
 
 The MIT License (MIT)
