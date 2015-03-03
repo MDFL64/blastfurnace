@@ -112,7 +112,7 @@ namespace program {
 
 		static void err(string msg) {
 			Console.ForegroundColor = ConsoleColor.DarkRed;
-			Console.WriteLine("[!] " + msg);
+			Console.WriteLine("[!] Error: " + msg);
 			Console.ForegroundColor = ConsoleColor.Gray;
 			Console.ReadKey();
 			Environment.Exit(1);
