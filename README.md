@@ -9,8 +9,6 @@ weapons into scrap. No assistance will be provided to users hoping to use the co
 
 ##Building
 
-Only tested on Windows.
-
 Run module/compile.bat to build the C++ module. Only tested with MinGW on Windows.
 
 The rest of the project is a VS2013 C# project and can be compiled with Visual Studio.
