@@ -1,4 +1,4 @@
-#Blastfurnace
+# Blastfurnace
 *A bulk crafting utility for Team Fortress 2*
 
 This program simplifies the process of crafting weapons together in Team Fortress 2. It skips items with special qualities and
@@ -9,13 +9,13 @@ When using this, Steam should be running, and TF2 should **not** be running.
 **Note:** This program is **not** intended to give users an unfair advantage by helping them get low craft numbers. It only crafts
 weapons into scrap. No assistance will be provided to users hoping to use the code for this purpose.
 
-##Building
+## Building
 
 Run module/compile.bat to build the C++ module. Only tested with MinGW on Windows.
 
 The rest of the project is a VS2013 C# solution and can be compiled with Visual Studio.
 
-##License
+## License
 
 The MIT License (MIT)
 
